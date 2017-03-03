@@ -13,16 +13,16 @@ maketwcard () {
     description="$(cat $2/plugin.info | jq '.description')"
     repo="$(cat $2/plugin.info | jq '.source')"
     CardName="$1 ($(sed -e 's/^"//' -e 's/"$//' <<<"$maintainer"))"
-    echo title: $(sed -e 's/^"//' -e 's/"$//' <<<"$CardName") > "./editions/$subfolder/Directory/tiddlers/$CardName.tid"
-    echo caption: $1 >> "./editions/$subfolder/Directory/tiddlers/$CardName.tid"
-    echo plugin_tidder: $(sed -e 's/^"//' -e 's/"$//' <<<"$plugintiddler") >> "./editions/$subfolder/Directory/tiddlers/$CardName.tid"
-    echo caption: $(sed -e 's/^"//' -e 's/"$//' <<<"$1") >> "./editions/$subfolder/Directory/tiddlers/$CardName.tid"
-    echo revision: $(sed -e 's/^"//' -e 's/"$//' <<<"$version") >> "./editions/$subfolder/Directory/tiddlers/$CardName.tid"
-    echo description: $(sed -e 's/^"//' -e 's/"$//' <<<"$description") >> "./editions/$subfolder/Directory/tiddlers/$CardName.tid"
-    echo repo: $(sed -e 's/^"//' -e 's/"$//' <<<"$repo") >> "./editions/$subfolder/Directory/tiddlers/$CardName.tid"
-    echo url: http://ooktech.com/TiddlyWiki/$1/ >> "./editions/$subfolder/Directory/tiddlers/$CardName.tid"
-    echo name_plate_type: TiddlyWiki >> "./editions/$subfolder/Directory/tiddlers/$CardName.tid"
-    echo "tags: [[<Name Plate>]] Website OokTech" >> "./editions/$subfolder/Directory/tiddlers/$CardName.tid"
+    echo title: $(sed -e 's/^"//' -e 's/"$//' <<<"$CardName") > "./editions/$subfolder/ZZZDirectory/tiddlers/$CardName.tid"
+    echo caption: $1 >> "./editions/$subfolder/ZZZDirectory/tiddlers/$CardName.tid"
+    echo plugin_tidder: $(sed -e 's/^"//' -e 's/"$//' <<<"$plugintiddler") >> "./editions/$subfolder/ZZZDirectory/tiddlers/$CardName.tid"
+    echo caption: $(sed -e 's/^"//' -e 's/"$//' <<<"$1") >> "./editions/$subfolder/ZZZDirectory/tiddlers/$CardName.tid"
+    echo revision: $(sed -e 's/^"//' -e 's/"$//' <<<"$version") >> "./editions/$subfolder/ZZZDirectory/tiddlers/$CardName.tid"
+    echo description: $(sed -e 's/^"//' -e 's/"$//' <<<"$description") >> "./editions/$subfolder/ZZZDirectory/tiddlers/$CardName.tid"
+    echo repo: $(sed -e 's/^"//' -e 's/"$//' <<<"$repo") >> "./editions/$subfolder/ZZZDirectory/tiddlers/$CardName.tid"
+    echo url: http://ooktech.com/TiddlyWiki/$1/ >> "./editions/$subfolder/ZZZDirectory/tiddlers/$CardName.tid"
+    echo name_plate_type: TiddlyWiki >> "./editions/$subfolder/ZZZDirectory/tiddlers/$CardName.tid"
+    echo "tags: [[<Name Plate>]] Website OokTech" >> "./editions/$subfolder/ZZZDirectory/tiddlers/$CardName.tid"
 }
 
 #This is the function that dues the actual building part, $1 in the $plugin name
@@ -37,8 +37,12 @@ buildwiki () {
         #update or create the twCard for the plugin
         maketwcard $1 $2
     fi
-    #build the wiki
-    node ./tiddlywiki.js editions/OokTech/$1 --build index
+    #build the wiki, the directory is special
+    if [ $1 = "Directory" ]; then
+        node ./tiddlywiki.js editions/OokTech/ZZZ$1 --build index
+    else
+        node ./tiddlywiki.js editions/OokTech/$1 --build index
+    fi
 }
 
 #List all editions in the ./editions/$subfolder/ folder
@@ -47,7 +51,12 @@ for f in ./editions/$subfolder/*; do
     #get the output file name
     file="$f/output/index.html"
     #get the edition name by removing the ./editions/$subfolder/ prefix
-    plugin=${f#*./editions/$subfolder/}
+    #The directory is special because it has to come last in order to work
+    if [ $f = "./editions/OokTech/ZZZDirectory" ]; then
+        plugin=${f#*./editions/$subfolder/ZZZ}
+    else
+        plugin=${f#*./editions/$subfolder/}
+    fi
     #get the tiddlers folder
     tiddlersfolder=$f/tiddlers
     #get the plugin folder by combining the parts of the folder name
