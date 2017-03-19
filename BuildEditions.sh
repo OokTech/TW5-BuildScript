@@ -46,7 +46,11 @@ pluginprefix=TW5-
 
 #if you set this to false than nothing will be uploaded and you can ignore
 #the rest of the configuration.
-upload=true
+if [ "$1" = "true" ]; then
+    upload=true
+else
+    upload=false
+fi
 
 #As an example, your ssh commands would be something like this to get to
 #the folder where your wiki is hosted:
@@ -93,6 +97,7 @@ maketwcard () {
     echo url: $baseurl/$1 >> "./editions/$author/ZZZDirectory/tiddlers/$CardName.tid"
     echo name_plate_type: TiddlyWiki >> "./editions/$author/ZZZDirectory/tiddlers/$CardName.tid"
     echo "tags: [[<Name Plate>]] Website OokTech" >> "./editions/$author/ZZZDirectory/tiddlers/$CardName.tid"
+    echo date: $(date +%d-%m-%Y) >> "./editions/$author/ZZZDirectory/tiddlers/$CardName.tid"
 }
 
 #This is the function that dues the actual building part, $1 in the $plugin name
